@@ -1,0 +1,475 @@
+\documentclass[a4paper,11pt,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[nodayofweek]{datetime}
+\usepackage[compact]{titlesec}
+\usepackage{etoolbox}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{enumerate}
+
+\geometry{
+  a4paper,
+  left=15mm,
+  right=15mm,
+  marginpar=20mm,
+  top=18mm,
+  bottom=22mm,
+  %showframe,
+}
+
+\title{HEIG-VD --- PST\\\vspace{0.8em}\textbf{Laboratoire 1 -- Compte-rendu}}
+\date{\today}
+\author{Loïc \textsc{Herman}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Loïc Herman}
+\lhead{HEIG-VD --- PST : Laboratoire 1 --- Compte-rendu}
+\lfoot{\twodigit{\the\month}.\the\year}
+\rfoot{\thepage}
+
+\renewcommand{\baselinestretch}{1.15}
+% \setlength{\columnseprule}{1pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt plus 0.5ex}
+\everymath{\displaystyle}
+\setcounter{secnumdepth}{5}
+
+\renewcommand*{\theparagraph}{\thesubsection.\alph{paragraph}}
+
+\makeatletter 
+\preto{\@verbatim}{\topsep=0pt \partopsep=0pt}
+\makeatother
+
+\lstset{
+  language=R,
+  backgroundcolor=\color{black!5},
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+}
+
+\newcommand{\Rprog}{\textsf{\textbf{R }}}
+
+\newcounter{exercise}
+\newcommand{\ex}{%
+  \addtocounter{exercise}{1}%
+  \subsection{Exercice~\theexercise}%
+}
+
+\begin{document}
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+options(
+  formatR.arrow=TRUE, replace.assign=TRUE, strip.white=T, width=80,
+  repos = list(CRAN="http://cran.rstudio.com/")
+)
+knitr::opts_chunk$set(fig.path='figure/', fig.align='center', fig.show='hold', fig.pos="H", par=T)
+knitr::knit_hooks$set(crop = knitr::hook_pdfcrop)
+@
+
+\maketitle
+
+\section{Introduction}
+
+Le but de ce travail pratique est de se familiariser avec les commandes de base du logiciel \Rprog et d'utiliser des techniques d'analyse statistique pour une variable. Nous avons choisi de travailler avec \Rprog car c'est un logiciel de statistique populaire et puissant qui est largement utilisé dans de nombreux domaines. En réalisant plusieurs exercices avec \Rprog, nous espérons acquérir une meilleure compréhension de ses fonctionnalités et de la manière dont elles peuvent être utilisées pour l'analyse statistique.
+
+En fin de compte, nous espérons que ce travail pratique nous aidera à mieux comprendre l'utilisation de \Rprog pour l'analyse statistique et à développer nos compétences dans ce domaine. Nous sommes impatients de mettre en pratique ce que nous avons appris et de voir comment ces techniques peuvent nous aider à mieux comprendre les données et à prendre des décisions éclairées.
+
+\section{Exercices}
+
+<<echo=FALSE>>=
+datadir = "../data"
+@
+
+\ex
+
+L'objectif de cet exercice est de se familiariser avec les commandes de base du logiciel \Rprog afin de pouvoir manipuler des objets. Pour atteindre cet objectif, nous avons utilisé les fonctions \lstinline{scan()} et \lstinline{read.table()} pour charger les données nécessaires à notre travail pratique.
+
+\subsubsection{Import des données}
+
+Le code suivant utilise \lstinline{scan()} pour lire un vecteur à partir du fichier \texttt{cpus.txt} et \lstinline{read.table()} avec l'option \lstinline{header=T} pour lire une table à partir du fichier \texttt{examen.txt}, avec la première ligne du fichier utilisée comme en-tête de colonne.
+
+\setcounter{paragraph}{1}
+\paragraph{} Utiliser les commandes suivantes dans \Rprog pour charger les données:
+
+<<>>=
+cpus<-scan(paste(datadir, "cpus.txt", sep = "/")) 
+examen<-read.table(paste(datadir, "examen.txt", sep = "/"), header=T)
+@
+
+\subsubsection{Lecture du contenu des données}
+
+Le code suivant utilise les méthodes élémentaires du logiciel \Rprog pour l'exploration des données chargées précédemment.
+
+\setcounter{paragraph}{2}
+\paragraph{}
+
+Pour voir le contenu de l’objet \lstinline{cpus}, taper l’instruction
+
+<<>>=
+cpus
+@
+
+\paragraph{}
+
+Pour accéder à la 10ème composante du vecteur \lstinline{cpus}, utiliser la commande
+
+<<>>=
+cpus[10]
+@
+
+\paragraph{}
+
+Pour obtenir une partie du vecteur \lstinline{cpus} comme par exemple les éléments du vecteur compris entre la 3ème et la 17ème composante, taper l’instruction
+
+<<>>=
+cpus[3:17]
+@
+
+\paragraph{}
+
+Pour extraire du vecteur \lstinline{cpus} ses éléments supérieurs à 185, utiliser la commande
+
+<<>>=
+cpus[cpus>185]
+@
+
+\paragraph{}
+
+Pour afficher la composante \lstinline{note} de l’objet \lstinline{examen}, on peut utiliser la commande
+
+<<>>=
+examen$note
+@
+
+\paragraph{}
+
+On peut aussi accéder en profondeur aux composantes comme par exemple par la commande
+
+<<>>=
+examen$note[7]
+@
+
+\paragraph{Création d'objets}
+
+La méthode la plus simple pour créer un vecteur consiste à énumérer ses éléments à l’aide
+de la fonction \lstinline{c()}
+
+\subparagraph{}
+
+Un vecteur de données numériques
+
+<<>>=
+mesdonnees<-c(2.9, 3.4, 3.4, 3.7, 3.7, 2.8, 2.8, 2.5, 2.4)
+mesdonnees
+@
+
+\subparagraph{}
+
+Un vecteur de données textuelles
+
+<<>>=
+couleurs<-c("bleu", "vert", "blanc", "noir")
+couleurs
+@
+
+\paragraph{}
+
+On peut ôter des composantes d’un vecteur en indiquant entre crochets les indices précédés du signe négatif comme par exemple
+
+<<>>=
+mesdonnees[-c(3:5)]
+@
+
+\paragraph{}
+
+Finalement, le contenu de votre environnement de travail est affiché à l’aide de la commande
+
+<<>>=
+ls()
+@
+
+\ex
+
+L'objectif de cet exercice est de faire une analyse élémentaire des valeurs de la performance relative au processeur \texttt{IBM 370/158-3} afin de consolider notre connaissance des valeurs observées et des variables statistiques.
+
+\paragraph{}
+
+Construire un diagramme branche-et-feuilles, un histogramme et une boîte à moustaches
+des données observées à l’aide des commandes
+
+\subparagraph{}
+
+Création d'un diagramme branche-et-feuilles
+
+<<>>=
+stem(cpus)
+@
+
+\subparagraph{}
+
+Création d'un histogramme avec une boîte à moustaches
+
+<<crop=T, fig.cap="Un histogramme et une boîte à moustaches des données observées">>=
+par(mfrow=c(1,2), pty="s")
+hist(cpus, xlab="performance relative", ylab="fréquence", main="", col="darkslategray4")
+rug(cpus)
+boxplot(cpus, xlab="performance relative", col="darkslategray4", horizontal=T) 
+par(mfrow=c(1,1))
+@
+
+\paragraph{Commentaires}\mbox{}\\
+
+L'analyse de la distribution des données montre une asymétrie positive, c'est-à-dire que la queue de la distribution à droite est plus longue que celle à gauche. De plus, il y a quelques valeurs qui semblent atypiques, c'est-à-dire qui sont éloignées de la plupart des autres valeurs. Ces valeurs se trouvent généralement après environ 200.
+
+\paragraph{}
+
+Calculer la performance relative médiane, la performance relative moyenne et le(s) mode(s)
+des valeurs observées
+
+\subparagraph{} 
+
+Calcul de la performance relative médiane
+
+<<>>=
+median(cpus)
+@
+
+\subparagraph{} 
+
+Calcul de la performance relative moyenne
+
+<<>>=
+mean(cpus)
+@
+
+\subparagraph{} 
+
+Calcul de la mode trimodale, les valeurs les plus observées
+
+<<>>=
+n.cpus <- table(cpus)
+as.numeric(names(n.cpus)[n.cpus == max(n.cpus)])
+@
+
+\subparagraph{Questions}\mbox{}\\
+
+L'analyse des statistiques descriptives montre que la moyenne et la médiane sont très différentes l'une de l'autre. Cela indique la présence de valeurs atypiques dans les données, c'est-à-dire de valeurs qui sont éloignées de la plupart des autres valeurs.
+
+Il est donc plus approprié d'utiliser la médiane, qui accordera moins d'importance à ces valeurs atypiques.
+
+\paragraph{} Que fait la commande suivante ?
+
+La commande \lstinline{summary()} est une fonction de base de \Rprog qui permet de calculer et d'afficher un résumé des principales statistiques descriptives d'un objet. Dans le cas présent, la commande \lstinline{summary(cpus)} calcule et affiche un résumé des statistiques descriptives de la variable \texttt{cpus}.
+
+Plus précisément, cette commande calcule et affiche la moyenne, la médiane, le minimum, le maximum, ainsi que le premier et le troisième quartile.
+
+<<>>=
+summary(cpus)
+@
+
+\paragraph{} En effectuant aucun calcul, décrire l’effet sur la moyenne et sur la médiane des trois interventions suivantes
+
+\subparagraph{} ajouter un processeur de performance relative 45
+
+L'ajout d'une valeur de 45 à la distribution des données ne devrait pas avoir un grand impact sur la médiane et la moyenne. En effet, comme 45 se trouve environ au milieu de la distribution, cela signifie que cette valeur n'est pas très éloignée de la plupart des autres valeurs. Ainsi, l'ajout de cette valeur ne va pas provoquer un décalage important de la médiane et de la moyenne. Toutefois, cela pourrait avoir un impact sur l'étendue de la distribution et sur la variabilité des données.
+
+\subparagraph{} soustraire 9 à chaque valeur observée
+
+Le déplacement de la médiane et de la moyenne de 9 unités indique que ces mesures de tendance centrale sont sensibles à la position des valeurs dans la distribution des données. En effet, lorsque la médiane et la moyenne sont décalées de manière importante, cela signifie que les valeurs de la distribution ont été modifiées de manière significative par rapport à leur position initiale.
+
+Par conséquent, si la médiane et la moyenne étaient initialement de 43 et que l'on soustrait 9 à chaque valeur de la distribution, cela va déplacer la médiane et la moyenne à 34.
+
+\subparagraph{} diviser chaque observation par 4
+
+La division de la moyenne et de la médiane par 4 indique que les valeurs de la distribution ont été modifiées en changeant l'échelle de mesure. Cette opération s'appelle une homotétie, c'est-à-dire une transformation qui conserve les proportions entre les éléments d'un objet tout en modifiant leur taille. Lorsqu'une homotétie est appliquée à une distribution de données, la moyenne et la médiane sont divisées par le même coefficient, ce qui a pour effet de réduire l'étendue de la distribution. 
+
+Par exemple, si la moyenne et la médiane étaient initialement de 43 et que l'on divise chaque valeur de la distribution par 4, cela va diviser la moyenne et la médiane par 4 et réduire l'étendue de la distribution de 4 fois.
+
+\paragraph{} Déterminer l’écart-type des performances relatives une fois avec les valeurs atypiques et
+une fois sans en utilisant les commandes
+
+<<>>=
+sd(cpus)
+sd(cpus[cpus<=185])
+@
+
+\subparagraph{Questions}\mbox{}\\
+
+L'écart-type est une mesure de la variabilité ou de la dispersion des données autour de la moyenne. Comme il est basé sur la moyenne, il est fortement influencé par les valeurs extrêmes de la distribution. En effet, lorsque les données comportent des valeurs atypiques ou éloignées de la plupart des autres valeurs, cela peut avoir un impact important sur la moyenne et, par conséquent, sur l'écart-type.
+
+Ainsi, l'écart-type peut être considéré comme moins robuste que d'autres mesures de dispersion, comme par exemple l'écart interquartile, qui est moins sensible aux valeurs atypiques. Cela signifie que l'écart-type peut être moins stable et moins fiable que d'autres mesures de dispersion lorsque les données comportent des valeurs atypiques.
+
+\ex
+
+L'exercice consiste à analyser les résultats de l'examen de fin d'unité d'un cours de Probabilités et Statistique passé par 24 étudiants répartis en deux groupes, en emploi et à plein temps, et à déterminer si les résultats des deux groupes sont similaires ou différents.
+
+\paragraph{} Tracer les boîtes à moustaches en parallèle en utilisant les commandes suivantes:
+
+<<crop=T, out.width="50%", fig.cap="Boîte à moustache des notes par mode de formation">>=
+note.EE<-split(examen$note, examen$mode_de_formation)$EE 
+note.PT<-split(examen$note, examen$mode_de_formation)$PT 
+lblue<-"#528B8B"
+par(pty="s")
+boxplot(note~mode_de_formation, data=examen, ylim=c(1,6), 
+        xlab="mode de formation", varwidth=T, col=lblue, main="examen")
+abline(h=4, lty=2) 
+rug(note.EE, side=2) 
+rug(note.PT, side=4)
+@
+
+\subparagraph{Questions}\mbox{}\\
+
+En analysant les résultats de l'examen de fin d'unité pour les deux groupes d'étudiants, on constate qu'il n'y a pas de différence significative en termes de position. Cela signifie que les notes moyens des deux groupes sont similaires et que la distribution des notes est centrée autour de valeurs proches.
+
+Toutefois, on observe une différence significative de dispersion entre les deux groupes. Cela signifie que la variabilité des notes est plus importante dans un des groupes que dans l'autre. Pour illustrer cette différence, on peut utiliser une mesure de dispersion comme l'écart-type ou l'écart interquartile. Si l'écart-type est plus grand pour un des groupes, cela signifie que la dispersion des notes est plus importante dans ce groupe. De même, si l'écart interquartile est plus grand pour un des groupes, cela indique que les notes sont plus dispersés dans ce groupe.
+
+Cette différence de dispersion peut être due au fait qu'il y a plus d'étudiants à plein temps dans l'échantillon. En effet, plus il y a de données, plus l'étendue de la distribution est grande, toutes choses égales par ailleurs. Mais, cette justification n'est pas robuste.
+
+\paragraph{}\label{par:3-b} Observe-t-on sur les boîtes à moustaches une différence entre les dispersions des deux
+groupes ?
+
+L'étendue de la distribution des résultats des étudiants à plein temps est beaucoup plus grande que celle des résultats des étudiants en emploi. Cela peut être interprété comme une indication que les résultats des étudiants à plein temps sont plus variables ou plus dispersés autour de la médiane que ceux des étudiants en emploi.
+
+\paragraph{}\label{par:3-c} Calculer les écarts-types des deux groupes à l’aide de la commande \lstinline{sd()}
+
+<<>>=
+sd(note.EE, na.rm=TRUE)
+sd(note.PT, na.rm=TRUE)
+@
+
+\subparagraph{Questions}\mbox{}\\
+
+En comparant les résultats de l'examen de fin d'unité des étudiants en emploi et à plein temps, on observe que la dispersion des données est significativement plus grande dans le groupe à plein temps. Dispersion ici désigne la variabilité ou l'étendue des données autour de la médiane. Cette différence de dispersion peut être expliquée par le fait qu'il y a plus d'étudiants à plein temps dans l'échantillon. Plus il y a de données, plus l'étendue de la distribution est grande, toutes choses égales par ailleurs. Ainsi, la différence de dispersion observée entre les deux groupes peut être attribuée à la différence de taille des échantillons. Il n'y a pas d'autre différence notable entre les deux groupes.
+
+\paragraph{} Que peut-on déduire en comparant les conclusions établies en \ref{par:3-b} et en \ref{par:3-c}
+
+En analysant les résultats de l'examen de fin d'unité des étudiants en emploi et à plein temps, on observe que la dispersion des données est significativement plus grande dans le groupe à plein temps.
+
+\paragraph{} Un autre graphique pour étudier les éventuelles différences entre les deux groupes à l’examen de fin d’unité est proposé. À votre avis, entre les boîtes à moustaches en parallèle et le graphique tracé ci-dessus,
+lequel est le plus approprié ?
+
+Le deuxième graphique présente les données sous forme de histogramme, c'est-à-dire en regroupant les valeurs par intervalle de classe et en représentant le nombre de valeurs dans chaque intervalle par une colonne. Un histogramme permet de visualiser la distribution des données et de se rendre compte de leur répartition. Il permet également de mettre en évidence les valeurs extrêmes, c'est-à-dire les valeurs les plus élevées et les plus basses de l'ensemble des données.
+
+Le premier graphique, en revanche, présente les données sous forme de diagramme en boîte (aussi appelé "boîte à moustaches"). Un diagramme en boîte permet de représenter la distribution des données et de mettre en évidence certains aspects de cette distribution, comme la médiane, les quartiles et les valeurs extrêmes.
+
+Dans ce cas précis, le deuxième graphique est considéré comme plus pertinent car il permet de mieux visualiser la distribution des notes et de mettre en évidence les valeurs extrêmes. Le diagramme en boîte, en revanche, ne permet pas de se rendre compte de la répartition des données et ne met pas en évidence les valeurs extrêmes de la même manière.
+
+\ex
+
+Dans cet exercice, nous allons utiliser \texttt{ggplot2} pour générer des graphiques.
+
+\paragraph{Installation}\mbox{}\\
+
+<<>>=
+library(ggplot2)
+library(arules, warn.conflicts=F, quietly=T)
+@
+
+\subparagraph{Import des données}\mbox{}\\
+
+La commande \lstinline{colnames(dframe) \<- c("education", "hours_per_week")} permet de renommer les colonnes de \texttt{dframe}.
+
+<<>>=
+data("AdultUCI")
+dframe<-AdultUCI[, c("education", "hours-per-week")]
+colnames(dframe)<-c("education", "hours_per_week")
+str(dframe)
+@
+
+\subparagraph{Graphique}\mbox{}\\
+
+Le graphique en question est une combinaison de deux types de représentation graphique : une boîte à moustaches et un nuage de points. La boîte à moustaches permet de visualiser la distribution des données et de mettre en évidence certains aspects de cette distribution, comme la médiane, les quartiles et les valeurs extrêmes. Elle est particulièrement utile pour avoir une vue d'ensemble de la répartition des données. Le nuage de points, quant à lui, permet de représenter l'ensemble des données individuellement sous forme de points sur un graphique en deux dimensions. Il permet de mettre en évidence la densité des données et de visualiser les valeurs extrêmes de manière plus détaillée.
+
+En combinant ces deux types de représentation graphique sur la même ligne, le graphique obtenu est très complet et permet d'avoir une bonne idée de la répartition générale des données, autant sur le plan global (grâce à la boîte à moustaches) que sur le plan détaillé (grâce au nuage de points). Il est donc très utile pour comprendre la distribution des données et pour identifier les tendances et les particularités de cette distribution.
+
+<<crop=T, out.width="75%">>=
+ggplot(dframe, aes(x=education, y=hours_per_week)) +
+geom_point(colour="lightblue", alpha=0.1, position="jitter") +
+geom_boxplot(outlier.size=0, alpha=0.2) + coord_flip()
+@
+
+\paragraph{} Pour quel type de formation observe-t-on la plus grande dispersion du temps de travail? Existe-t-il une différence entre les médianes des types de formation ? En donner brièvement la raison.
+
+"11th" a la plus grande dispersion du temps de travail.
+
+Sauf pour les valeurs de "Doctorate" et "Prof-school", les médianes sont pratiquement égales.
+
+Dans cette étude, les données portent sur le nombre d'heures travaillées par semaine par des individus de différents niveaux de formation. Si les médianes du nombre d'heures travaillées sont similaires pour la plupart des niveaux de formation, cela peut s'expliquer par le fait qu'il y a peut-être un certain nombre d'individus qui travaillent un nombre standard d'heures par semaine, comme par exemple 40 heures. Cette hypothèse peut être vérifiée en regardant la distribution des données et en analysant si une proportion importante des individus travaille environ 40 heures par semaine. Si c'est le cas, cela pourrait expliquer pourquoi les médianes sont similaires. Il serait également intéressant de vérifier si cette hypothèse tient compte de facteurs tels que le genre, l'âge et la profession des individus, qui peuvent également influencer le nombre d'heures travaillées par semaine.
+
+\paragraph{}\label{par:4-c} Pour chaque type de formation, on peut déterminer puis afficher à l’écran le temps maximal de travail hebdomadaire à l’aide des commandes
+
+On remarque que chaque variable a une valeur maximale de 99, ce qui pourrait indiquer que c'est une valeur qui remplace les observations pour lesquelles la valeur est manquante.
+
+<<>>=
+nx<-tapply(dframe$hours_per_week, dframe$education, max, na.rm=T) 
+nx
+
+max(nx)
+names(nx)[nx==max(nx)]
+@
+
+\paragraph{} En s’inspirant des commandes utilisées en \ref{par:4-c}, déterminer la formation pour laquelle la
+distribution des temps de travail se caractérise par le plus petit écart-type
+
+<<>>=
+nx.sd<-tapply(dframe$hours_per_week, dframe$education, sd, na.rm=T) 
+names(nx.sd)[nx.sd==min(nx.sd)]
+@
+
+\paragraph{} Observe-t-on un résultat similaire en utilisant l’étendue interquartiles à l’aide de la fonction \lstinline{IQR()}?
+
+<<>>=
+nx<-aggregate(hours_per_week~education, dframe, IQR, na.rm=T) 
+min(nx[,2])
+nx[,1][nx[,2]==min(nx[,2])]
+@
+
+L'écart interquartile (aussi appelé "intervalle interquartile" ou "IQR") est une mesure de dispersion qui s'applique à une distribution de données quantitatives. Elle correspond à la différence entre le premier quartile (Q1) et le troisième quartile (Q3) de la distribution. L'IQR est une mesure robuste qui prend en compte la majorité des données, c'est-à-dire les données comprises entre le premier quartile (Q1) et le troisième quartile (Q3). Elle ne prend pas en compte les valeurs extrêmes, c'est-à-dire les valeurs situées en dehors de l'intervalle Q1-Q3.
+
+L'écart-type, quant à lui, est une autre mesure de dispersion qui s'applique à une distribution de données quantitatives. Il correspond à la racine carrée de la variance de la distribution. L'écart-type prend en compte toutes les valeurs de la distribution, y compris les valeurs extrêmes. Il est donc moins robuste que l'IQR car il est plus sensible aux valeurs extrêmes qui peuvent influencer fortement la valeur de l'écart-type.
+
+Donc, non, les résultats ne seront pas les mêmes.
+
+\ex
+
+Dans cet exercice, nous allons nous intéresser à deux librairies de R : \texttt{plotly} et \texttt{magrittr}. 
+
+La librairie \texttt{plotly} permet de construire des diagrammes en boîte (aussi appelés "boîtes à moustaches") accompagnés par les statistiques élémentaires usuelles.
+
+La librairie \texttt{magrittr}, quant à elle, fournit un mécanisme grâce auquel des commandes peuvent être efficacement enchaînées.
+
+Nous verrons comment utiliser ces deux librairies pour manipuler des objets de \Rprog de manière efficace et produire des graphiques de qualité.
+
+<<eval=F>>=
+library(plotly)
+library(magrittr)
+@
+
+<<eval=F>>=
+plot_ly(examen, y=~note, x=~mode_de_formation, type="box") %>% 
+  layout(yaxis=list(range=c(1, 6)))
+@
+
+
+\section{Conclusion}
+
+Pour conclure, ce travail pratique nous a permis de nous familiariser avec les commandes de base du logiciel \Rprog et d'utiliser des techniques d'analyse statistique pour une variable. Nous avons réalisé plusieurs exercices qui nous ont aidé à mieux comprendre comment utiliser \Rprog pour l'analyse de données et à développer nos compétences dans ce domaine.
+
+En général, ce travail pratique nous a permis de mieux comprendre l'utilisation de \Rprog pour l'analyse statistique et de développer nos compétences dans ce domaine. Nous avons maintenant une base solide pour continuer à utiliser \Rprog et à explorer d'autres fonctionnalités de ce logiciel.
+
+En outre, ce travail pratique nous a montré l'importance de bien comprendre les données et d'utiliser des techniques statistiques appropriées pour analyser ces données. En effet, une mauvaise interprétation des données peut conduire à des conclusions erronées et à des décisions inappropriées.
+
+Enfin, ce travail pratique nous a donné l'occasion de mettre en pratique ce que nous avons appris au long du cours de Probabilités et Statistiques de la HEIG-VD et de voir comment ces techniques peuvent nous aider à mieux comprendre les données en prenant des décisions éclairées.
+
+\end{document}
